@@ -67,12 +67,6 @@ build-mode = "both"
 version = "auto"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 
-[Messenger]
-enabled = true
-build-mode = "both"
-version = "auto"
-apkmirror-dlurl = "https://www.apkmirror.com/apk/facebook/messenger/"
-
 [Citra]
 enabled = false
 apkmirror-dlurl = "https://www.apkmirror.com/apk/citra-emulator/citra-emulator/"
