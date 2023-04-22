@@ -112,7 +112,7 @@ jobs:
         run: |
           cd build || echo "build folder not found"
 
-          TG_CHAT="@rvc_magisk"
+          TG_CHAT="@Zalati"
           NL=$'\n'
           APKS=""
           MODULES=""
