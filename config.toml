@@ -37,30 +37,41 @@ module-prop-name = "ytmusicrv-arm-magisk"
 arch = "arm-v7a"
 
 [Twitter]
-build-mode = "apk"
+enabled = true
+build-mode = "both"
 excluded-patches = "hide-views-stats"
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/twitter-inc/twitter/"
 
 [Reddit]
-build-mode = "apk"
+enabled = true
+build-mode = "both"
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit/"
 
 [Twitch]
-build-mode = "apk"
+enabled = true
+build-mode = "both"
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
 
 [TikTok]
+enabled = true
+build-mode = "both"
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/"
 
 [Spotify]
-enabled = false
-build-mode = "apk"
+enabled = true
+build-mode = "both"
 version = "auto"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
+
+[Messenger]
+enabled = true
+build-mode = "both"
+version = "auto"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/facebook/messenger/"
 
 [Citra]
 enabled = false
