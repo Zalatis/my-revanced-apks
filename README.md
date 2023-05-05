@@ -21,6 +21,7 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
  * TikTok (apk)
  * Twitch (apk)
  * Twitter (apk)
+
 Magisk apps need Root access & apk doesn't need it
 
 ## Features
