@@ -24,5 +24,6 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
      * do not break safetynet or trigger root detections
      * handle installation of the correct version of the stock app and all that
      * support Magisk and KernelSU
+
 Easy updates with [Obtainium](https://github.com/ImranR98/Obtainium)
 
