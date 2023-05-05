@@ -15,7 +15,7 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
 
 ## Apps on this fork
  * Youtube Music (Magisk & apk) (arm-v7a & arm64-v8a)
- * Youtube (Magisk & apk) (arm-v7a & arm64-v8a)
+ * Youtube (Magisk & apk)
  * Reddit (apk)
  * Spotify (apk)
  * TikTok (apk)
