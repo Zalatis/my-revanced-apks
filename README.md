@@ -14,6 +14,7 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
 [**mindetach module**](https://github.com/j-hc/mindetach-magisk) in the releases section detaches YouTube and YouTube Music from Play Store and blocks it from updating them.
 
 ## Features
+ * Easy updates with [Obtainium](https://github.com/ImranR98/Obtainium)
  * Support all present and future ReVanced and [ReVanced Extended](https://github.com/inotia00/revanced-patches) apps
  * Can build Magisk modules and non-root APKs
  * Updated daily with the latest versions of apps and patches
@@ -24,6 +25,3 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
      * do not break safetynet or trigger root detections
      * handle installation of the correct version of the stock app and all that
      * support Magisk and KernelSU
-
-Easy updates with [Obtainium](https://github.com/ImranR98/Obtainium)
-
