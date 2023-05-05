@@ -1,15 +1,16 @@
 #### ⚠️ Do not download modules from 3rd party sources like random websites you found on Google. Only use this repository. I am not responsible for anything they may contain.
+
 # This is a fork of [j-hc/revanced-magisk-module](https://github.com/j-hc/revanced-magisk-module)
 More infos about the official repo on [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/rvc_magisk)
 
 
-# Links about schedule tasks
+## Links about schedule tasks
 [![Build Modules](https://github.com/Zalatis/my-revanced-apks/actions/workflows/build.yml/badge.svg)](https://github.com/Zalatis/my-revanced-apks/actions/workflows/build.yml)
 [![CI](https://github.com/Zalatis/my-revanced-apks/actions/workflows/ci.yml/badge.svg?event=schedule)](https://github.com/Zalatis/my-revanced-apks/actions/workflows/ci.yml)
 
 Extensive ReVanced builder
 
-Get the [official latest version of this fork](https://github.com/j-hc/revanced-magisk-module/releases).
+Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
 
 [**mindetach module**](https://github.com/j-hc/mindetach-magisk) in the releases section detaches YouTube and YouTube Music from Play Store and blocks it from updating them.
 
