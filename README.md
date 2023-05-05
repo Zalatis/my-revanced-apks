@@ -1,7 +1,6 @@
 #### ⚠️ Do not download modules from 3rd party sources like random websites you found on Google. Only use this repository. I am not responsible for anything they may contain.
 
 # This is a fork of [j-hc/revanced-magisk-module](https://github.com/j-hc/revanced-magisk-module)
-[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/rvc_magisk) of the original creator
 
 
 ## Links about schedule tasks
