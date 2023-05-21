@@ -49,49 +49,26 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/twitter-inc/twitter/"
 
 [Twitch]
 build-mode = "apk"
+version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
 
 [TikTok]
+build-mode = "apk"
+version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/"
 
 [Reddit]
-enabled = false
+build-mode = "apk"
+version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit/"
 
 [Spotify]
+build-mode = "apk"
+version = "auto"
 enabled = false
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 
-[Citra]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/citra-emulator/citra-emulator/"
-arch = "arm64-v8a"
-
-[Backdrops]
-enabled = false
-uptodown-dlurl = "https://backdrops.en.uptodown.com/android"
-
-[WarnWetter]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/deutscher-wetterdienst/warnwetter/"
-
-[Windyapp]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/windy-weather-world-inc/windy-wind-weather-forecast/"
-
-[IconPackStudio]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/smart-launcher-team/icon-pack-studio/"
-
-[TickTick]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/appest-inc/ticktick-to-do-list-with-reminder-day-planner/"
-arch = "arm64-v8a"
-
-[Tasker]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/joaomgcd/tasker/"
-
-[Photomath]
-enabled = false
-apkmonk-dlurl = "https://www.apkmonk.com/app/com.microblink.photomath/"
+[Instagram]
+build-mode = "apk"
+version = "auto"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/instagram/instagram-instagram"
