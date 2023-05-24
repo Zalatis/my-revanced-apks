@@ -65,7 +65,6 @@ apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit/"
 [Spotify]
 build-mode = "apk"
 version = "auto"
-enabled = false
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 
 [Instagram]
