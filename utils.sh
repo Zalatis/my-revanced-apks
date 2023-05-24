@@ -405,9 +405,9 @@ build_rv() {
 		fi
 		if [ "$build_mode" = module ]; then
 			if [ $is_bundle = false ] || [ "${args[include_stock]}" = false ]; then
-				patcher_args+=("--unsigned")
+				patcher_args+=("")
 			else
-				patcher_args+=("--unsigned")
+				patcher_args+=("")
 			fi
 		fi
 		if [ ! -f "$patched_apk" ] || [ "$REBUILD" = true ]; then
