@@ -120,7 +120,7 @@ jobs:
           MODULES=${MODULES#"$NL"}
           APKS=${APKS#"$NL"}
 
-          BODY="$(sed -n '1,/Changelog:/p' ../build.md)"
+          BODY="$(sed -n '/Changelog:/,/$/ {/\/revanced\/revanced-patches\/compare\//p}' ../build.md)"
           MSG="*New build!*
 
           ${BODY}
