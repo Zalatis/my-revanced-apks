@@ -9,6 +9,8 @@ Twitch: 14.6.1
 TikTok: 27.8.3  
 Reddit: 2023.20.1  
 Spotify: 8.8.36.522  
+Instagram (arm64-v8a): 284.0.0.22.85  
+Instagram (arm-v7a): 284.0.0.22.85  
 
 Install [Vanced Microg](https://github.com/TeamVanced/VancedMicroG/releases) to be able to use non-root YouTube or Music  
 
