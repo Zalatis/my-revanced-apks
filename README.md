@@ -23,7 +23,7 @@ Magisk apps need Root access & apk doesn't need it
 
 ## Features
  * Easy updates with [Obtainium](https://github.com/ImranR98/Obtainium)
- * Support all present and future ReVanced and [ReVanced Extended](https://github.com/inotia00/revanced-patches) apps
+ * Support all present and future ReVanced apps
  * Can build Magisk modules and non-root APKs
  * Updated daily with the latest versions of apps and patches
  * Optimize APKs and modules for size
