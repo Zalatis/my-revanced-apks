@@ -18,7 +18,7 @@ Install [Vanced Microg](https://github.com/TeamVanced/VancedMicroG/releases) to 
 
 ---
 Changelog:  
-CLI: j-hc/revanced-cli-2.22.0-all.jar  
+CLI: revanced/revanced-cli-2.21.2-all.jar  
 Integrations: inotia00/revanced-integrations-0.107.10.apk  
 Patches: inotia00/revanced-patches-2.173.10.jar  
 
@@ -46,7 +46,7 @@ YouTube Music
 - [European Countries](https://crowdin.com/project/revancedextendedeu)
 - [Other Countries](https://crowdin.com/project/revancedextended)
 ---
-CLI: j-hc/revanced-cli-2.22.0-all.jar  
+CLI: revanced/revanced-cli-2.21.2-all.jar  
 Integrations: revanced/revanced-integrations-0.108.0.apk  
 Patches: revanced/revanced-patches-2.174.0.jar  
 
