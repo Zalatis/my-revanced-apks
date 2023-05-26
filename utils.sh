@@ -48,7 +48,7 @@ get_rv_prebuilts() {
 	pr "Getting prebuilts ($prebuilts_dir)"
 	local rv_cli_url rv_integrations_url rv_patches rv_patches_changelog rv_patches_dl rv_patches_url rv_patches_json
 
-	rv_cli_url=$(gh_req "https://api.github.com/repos/revanced/revanced-cli/releases/latest" - | json_get 'browser_download_url') || return 1
+	rv_cli_url=$(gh_req "https://api.github.com/repos/j-hc/revanced-cli/releases/latest" - | json_get 'browser_download_url') || return 1
 	local rv_cli_jar="${prebuilts_dir}/${rv_cli_url##*/}"
 	echo "CLI: $(cut -d/ -f4 <<<"$rv_cli_url")/$(cut -d/ -f9 <<<"$rv_cli_url")  " >"$prebuilts_dir/changelog.md"
 
@@ -237,7 +237,7 @@ get_apkmonk_pkg_name() { grep -oP '.*apkmonk\.com\/app\/\K([,\w,\.]*)' <<<"$1"; 
 patch_apk() {
 	local stock_input=$1 patched_apk=$2 patcher_args=$3 rv_cli_jar=$4 rv_patches_jar=$5
 	declare -r tdir=$(mktemp -d -p $TEMP_DIR)
-	local cmd="java -jar $rv_cli_jar --temp-dir=$tdir -c -a $stock_input -o $patched_apk -b $rv_patches_jar --keystore=ks.keystore $patcher_args"
+	local cmd="java -jar $rv_cli_jar --rip-lib x86_64 --rip-lib x86 --temp-dir=$tdir -c -a $stock_input -o $patched_apk -b $rv_patches_jar --keystore=ks.keystore $patcher_args"
 	if [ "$OS" = Android ]; then cmd+=" --custom-aapt2-binary=${TEMP_DIR}/aapt2"; fi
 	pr "$cmd"
 	if [ "${DRYRUN:-}" = true ]; then
@@ -405,9 +405,9 @@ build_rv() {
 		fi
 		if [ "$build_mode" = module ]; then
 			if [ $is_bundle = false ] || [ "${args[include_stock]}" = false ]; then
-				patcher_args+=("")
+				patcher_args+=("--unsigned --rip-lib arm64-v8a --rip-lib armeabi-v7a")
 			else
-				patcher_args+=("")
+				patcher_args+=("--unsigned")
 			fi
 		fi
 		if [ ! -f "$patched_apk" ] || [ "$REBUILD" = true ]; then
