@@ -57,7 +57,6 @@ set_prebuilts() {
 	local patches_dir=${patches_src%/*}
 	local integrations_dir=${integrations_src%/*}
 	local cli_dir=${cli_src%/*}
-
 	cli_ver=${cli_ver#v}
 	integrations_ver="${integrations_ver#v}"
 	patches_ver="${patches_ver#v}"
