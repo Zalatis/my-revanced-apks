@@ -16,10 +16,9 @@ module-prop-name = "ytrv-magisk"
 
 [Music]
 build-mode = "both"
-app-name = "Music"
 excluded-patches = ""
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music/"
-arch = "both"
+apkmirror-arch = "both"
 
 [Twitter]
 build-mode = "apk"
