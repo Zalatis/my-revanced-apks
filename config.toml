@@ -28,7 +28,7 @@ uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 
 [TikTok]
 enabled = true
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.zhiliaoapp.musically"
+uptodown-dlurl = "https://tiktok.en.uptodown.com/android"
 
 [Twitch]
 enabled = true
