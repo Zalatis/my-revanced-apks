@@ -11,8 +11,8 @@ Get the releases [here](https://github.com/Zalatis/my-revanced-apks/releases).
 [**mindetach module**](https://github.com/j-hc/mindetach-magisk) in the releases section detaches YouTube and YouTube Music from Play Store and blocks it from updating them.
 
 ## Apps on this fork
- * Youtube Music (Magisk & apk) (arm-v7a & arm64-v8a)
  * Youtube (Magisk & apk)
+ * Youtube Music (Magisk & apk) (arm-v7a & arm64-v8a)
  * Reddit (apk)
  * Spotify (apk)
  * TikTok (apk)
