@@ -49,7 +49,7 @@ archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.twitter.android"
 [Twitch]
 enabled = true
 build-mode = "apk"
-archive-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
 # archive-dlurl = "https://archive.org/download/jhc-apks/apks/tv.twitch.android.app"
 
 [TikTok]
