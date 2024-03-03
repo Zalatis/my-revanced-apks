@@ -1,6 +1,7 @@
 *.jar
 *.apk
 *.zip
+*.bak
 /revanced-cache
 /temp
 /build
