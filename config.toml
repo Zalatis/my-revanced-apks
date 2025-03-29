@@ -1,13 +1,13 @@
 enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
 parallel-jobs = 1
 
-# add 'enabled = false' for not patching a specific app or remove it from the config
+# add 'enabled = true' for not patching a specific app or remove it from the config
 # see https://github.com/j-hc/revanced-magisk-module/blob/main/CONFIG.md for more detailed explanations
 
 # you can use rvmm-config-gen to generate a config
 
 [YouTube]
-enabled = false
+enabled = true
 build-mode = "both"
 excluded-patches = ""
 included-patches = ""
@@ -17,7 +17,7 @@ uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.google.android.youtube"
 
 [Music]
-enabled = false
+enabled = true
 build-mode = "both"
 arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
@@ -25,7 +25,7 @@ uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.youtube.music"
 
 [GooglePhotos]
-enabled = false
+enabled = true
 build-mode = "both"
 arch = "both"
 version = "auto"
@@ -34,7 +34,7 @@ uptodown-dlurl = "https://google-photos.en.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.photos"
 
 [Twitter]
-enabled = false
+enabled = true
 build-mode = "apk"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/x-corp/twitter"
 uptodown-dlurl = "https://twitter.uptodown.com/android"
@@ -48,7 +48,7 @@ uptodown-dlurl = "https://twitch.en.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/tv.twitch.android.app"
 
 [TikTok]
-enabled = false
+enabled = true
 build-mode = "apk"
 version = "auto"
 arch = "both"
@@ -58,14 +58,14 @@ uptodown-dlurl = "https://tiktok.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.zhiliaoapp.musically"
 
 [Reddit]
-enabled = false
+enabled = true
 build-mode = "apk"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit"
 uptodown-dlurl = "https://reddit-official-app.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.reddit.frontpage"
 
 [Spotify]
-enabled = false
+enabled = true
 build-mode = "apk"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
 archive-dlurl = "https://zalati.fr/download/apks/com.spotify.music"
