@@ -51,6 +51,7 @@ archive-dlurl = "https://zalati.fr/download/apks/tv.twitch.android.app"
 enabled = true
 build-mode = "apk"
 version = "auto"
+arch = "both"
 included-patches = "'SIM spoof'"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly"
 uptodown-dlurl = "https://tiktok.uptodown.com/android"
