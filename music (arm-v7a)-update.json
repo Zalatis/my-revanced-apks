@@ -1,6 +1,6 @@
 {
-  "version": "v8.05.51 (patches: 5.20.1)",
-  "versionCode": 100,
-  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/100/music-revanced-magisk-v8.05.51-arm-v7a.zip",
+  "version": "v8.05.51 (patches: 5.21.0)",
+  "versionCode": 101,
+  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/101/music-revanced-magisk-v8.05.51-arm-v7a.zip",
   "changelog": "https://raw.githubusercontent.com/Zalatis/my-revanced-apks/update/build.md"
 }
