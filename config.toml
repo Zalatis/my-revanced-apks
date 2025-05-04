@@ -1,4 +1,4 @@
-enable-magisk-update = true   # set this to false if you do not want to receive updates for the module in magisk app
+enable-magisk-update = true # set this to false if you do not want to receive updates for the module in magisk app
 parallel-jobs = 1
 
 # add 'enabled = false' for not patching a specific app or remove it from the config
@@ -14,7 +14,7 @@ included-patches = ""
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.google.android.youtube"
+# archive-dlurl = "https://zalati.fr/download/apks/com.google.android.youtube"
 
 [Music]
 enabled = true
@@ -22,7 +22,7 @@ build-mode = "both"
 arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.youtube.music"
+# archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.youtube.music"
 
 [GooglePhotos]
 enabled = true
@@ -31,21 +31,21 @@ arch = "both"
 version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/photos/"
 uptodown-dlurl = "https://google-photos.en.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.photos"
+# archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.photos"
 
 [Twitter]
 enabled = true
 build-mode = "apk"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/x-corp/twitter"
 uptodown-dlurl = "https://twitter.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.twitter.android"
+# archive-dlurl = "https://zalati.fr/download/apks/com.twitter.android"
 
 [Twitch]
 enabled = true
 build-mode = "apk"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
 uptodown-dlurl = "https://twitch.en.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/tv.twitch.android.app"
+# archive-dlurl = "https://zalati.fr/download/apks/tv.twitch.android.app"
 
 [TikTok]
 enabled = true
@@ -55,17 +55,17 @@ arch = "both"
 included-patches = "'SIM spoof'"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly"
 uptodown-dlurl = "https://tiktok.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.zhiliaoapp.musically"
+# archive-dlurl = "https://zalati.fr/download/apks/com.zhiliaoapp.musically"
 
 [Reddit]
 enabled = true
 build-mode = "apk"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit"
 uptodown-dlurl = "https://reddit-official-app.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.reddit.frontpage"
+# archive-dlurl = "https://zalati.fr/download/apks/com.reddit.frontpage"
 
 [Spotify]
 enabled = true
 build-mode = "apk"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
-archive-dlurl = "https://zalati.fr/download/apks/com.spotify.music"
+# archive-dlurl = "https://zalati.fr/download/apks/com.spotify.music"
