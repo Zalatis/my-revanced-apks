@@ -67,4 +67,5 @@ uptodown-dlurl = "https://reddit-official-app.uptodown.com/android"
 enabled = true
 build-mode = "apk"
 uptodown-dlurl = "https://spotify.en.uptodown.com/android"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.spotify.music"
 # archive-dlurl = "https://zalati.fr/download/apks/com.spotify.music"
