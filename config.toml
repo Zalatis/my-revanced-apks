@@ -35,6 +35,7 @@ uptodown-dlurl = "https://google-photos.en.uptodown.com/android"
 [Twitter]
 enabled = true
 build-mode = "apk"
+dpi = "120-640dpi"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/x-corp/twitter"
 uptodown-dlurl = "https://twitter.uptodown.com/android"
 # archive-dlurl = "https://zalati.fr/download/apks/com.twitter.android"
