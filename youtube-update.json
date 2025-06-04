@@ -1,6 +1,6 @@
 {
-  "version": "v20.12.46 (patches: 5.25.0)",
-  "versionCode": 109,
-  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/109/youtube-revanced-magisk-v20.12.46-all.zip",
+  "version": "v20.12.46 (patches 5.26.0)",
+  "versionCode": 110,
+  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/110/youtube-revanced-magisk-v20.12.46-all.zip",
   "changelog": "https://raw.githubusercontent.com/Zalatis/my-revanced-apks/update/build.md"
 }
