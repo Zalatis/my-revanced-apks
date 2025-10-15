@@ -1,6 +1,6 @@
 {
-  "version": "v7.49.0.816946145 (patches 5.43.0)",
-  "versionCode": 129,
-  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/129/googlephotos-revanced-magisk-v7.49.0.816946145-arm-v7a.zip",
+  "version": "v7.49.0.816946145 (patches 5.43.1)",
+  "versionCode": 130,
+  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/130/googlephotos-revanced-magisk-v7.49.0.816946145-arm-v7a.zip",
   "changelog": "https://raw.githubusercontent.com/Zalatis/my-revanced-apks/update/build.md"
 }
