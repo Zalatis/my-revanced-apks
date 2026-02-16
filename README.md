@@ -46,6 +46,13 @@ such as,
 
 You can consider using [rvmm-zygisk-mount](https://github.com/j-hc/rvmm-zygisk-mount)
 
+## If you are having trouble with the classic mount method of the modules
+such as,
+- **"Reflash needed"** error after reboots
+- **"Suspicious mount detected"** warnings from root detector apps
+
+You can consider using [rvmm-zygisk-mount](https://github.com/j-hc/rvmm-zygisk-mount)
+
 ## Building Locally
 ### On Termux
 ```console
