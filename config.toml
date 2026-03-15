@@ -8,9 +8,13 @@ parallel-jobs = 1
 
 [YouTube]
 build-mode = "both"
+excluded-patches = ""
+included-patches = ""
+version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube"
 uptodown-dlurl = "https://youtube.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+# archive-dlurl = "https://zalati.fr/download/apks/com.google.android.youtube"
 
 [YouTube-Morphe]
 app-name = "YouTube"
@@ -28,6 +32,7 @@ arch = "both"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/youtube-music"
 uptodown-dlurl = "https://youtube-music.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
+# archive-dlurl = "https://zalati.fr/download/apks/com.google.android.apps.youtube.music"
 
 [Music-Morphe]
 app-name = "Music"
@@ -54,38 +59,46 @@ dpi = "120-640dpi"
 [GooglePhotos]
 build-mode = "both"
 arch = "both"
+version = "auto"
 apkmirror-dlurl = "https://www.apkmirror.com/apk/google-inc/photos/"
 uptodown-dlurl = "https://google-photos.en.uptodown.com/android"
 archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.photos"
 
-[Spotify]
-enabled = false
-uptodown-dlurl = "https://spotify.en.uptodown.com/android"
-archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.spotify.music"
-
-[Twitch]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
-uptodown-dlurl = "https://twitch.en.uptodown.com/android"
-# archive-dlurl = "https://archive.org/download/jhc-apks/apks/tv.twitch.android.app"
-
 [Twitter]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/x-corp/twitter"
+enabled = true
 build-mode = "apk"
 dpi = "120-640dpi"
-# archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.twitter.android"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/x-corp/twitter"
+uptodown-dlurl = "https://twitter.uptodown.com/android"
+# archive-dlurl = "https://zalati.fr/download/apks/com.twitter.android"
+
+[Twitch]
+enabled = true
+build-mode = "apk"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/"
+uptodown-dlurl = "https://twitch.en.uptodown.com/android"
+# archive-dlurl = "https://zalati.fr/download/apks/tv.twitch.android.app"
 
 [TikTok]
-enabled = false
-# archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.zhiliaoapp.musically"
+enabled = true
+build-mode = "apk"
+version = "auto"
+arch = "both"
 included-patches = "'SIM spoof'"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly"
+uptodown-dlurl = "https://tiktok.uptodown.com/android"
+# archive-dlurl = "https://zalati.fr/download/apks/com.zhiliaoapp.musically"
 
-[Messenger]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/facebook-2/messenger/"
-arch = "arm64-v8a"
+[Reddit]
+enabled = true
+build-mode = "apk"
+apkmirror-dlurl = "https://www.apkmirror.com/apk/redditinc/reddit"
+uptodown-dlurl = "https://reddit-official-app.uptodown.com/android"
+# archive-dlurl = "https://zalati.fr/download/apks/com.reddit.frontpage"
 
-[IconPackStudio]
-enabled = false
-apkmirror-dlurl = "https://www.apkmirror.com/apk/smart-launcher-team/icon-pack-studio/"
+[Spotify]
+enabled = true
+build-mode = "apk"
+uptodown-dlurl = "https://spotify.en.uptodown.com/android"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.spotify.music"
+# archive-dlurl = "https://zalati.fr/download/apks/com.spotify.music"
