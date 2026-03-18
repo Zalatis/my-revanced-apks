@@ -1,7 +1,8 @@
-GooglePhotos (arm64-v8a): 7.67.0.882706237  
-GooglePhotos (arm-v7a): 7.67.0.882706237  
+GooglePhotos (arm64-v8a): 7.68.0.884121604  
+GooglePhotos (arm-v7a): 7.68.0.884121604  
 Music (arm64-v8a): 8.40.54  
 Music (arm-v7a): 8.40.54  
+Spotify: 9.1.32.2058  
 TikTok (arm64-v8a): 36.5.4  
 TikTok (arm-v7a): 36.5.4  
 Twitch: 16.9.1  
@@ -14,5 +15,5 @@ Use [zygisk-detach](https://github.com/j-hc/zygisk-detach) to detach YouTube and
 [revanced-magisk-module](https://github.com/j-hc/revanced-magisk-module)
   
 CLI: ReVanced/revanced-cli-6.0.0-all.jar  
-Patches: ReVanced/patches-6.0.1.rvp  
-[Changelog](https://github.com/ReVanced/revanced-patches/releases/tag/v6.0.1)  
+Patches: ReVanced/patches-6.1.0.rvp  
+[Changelog](https://github.com/ReVanced/revanced-patches/releases/tag/v6.1.0)  

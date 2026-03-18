@@ -1,6 +1,6 @@
 {
-  "version": "v8.40.54 (patches 6.0.1.rvp)",
-  "versionCode": 139,
-  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/139/music-revanced-module-v8.40.54-arm-v7a.zip",
+  "version": "v8.40.54 (patches 6.1.0.rvp)",
+  "versionCode": 140,
+  "zipUrl": "https://github.com/Zalatis/my-revanced-apks/releases/download/140/music-revanced-module-v8.40.54-arm-v7a.zip",
   "changelog": "https://raw.githubusercontent.com/Zalatis/my-revanced-apks/update/build.md"
 }
