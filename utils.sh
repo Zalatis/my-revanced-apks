@@ -31,7 +31,7 @@ toml_get() {
 		op="${op%"${op##*[![:space:]]}"}"
 		op=${op//\\\'/$quote_placeholder}
 		op=${op//"''"/$quote_placeholder}
-		op=${op//"'"/'\"'}
+		op=${op//"'"/'"'}
 		op=${op//$quote_placeholder/$'\''}
 		echo "$op"
 	else return 1; fi
@@ -62,11 +62,7 @@ get_prebuilts() {
 
 	for src_ver in "$cli_src CLI $cli_ver cli" "$patches_src Patches $patches_ver patches"; do
 		set -- $src_ver
-		local raw_src=$1 tag=$2 ver=${3-} fprefix=$4
-
-		# Strip optional "gitlab:" prefix; sets $is_gitlab and clean $src
-		local is_gitlab src
-		_parse_src "$raw_src"
+		local src=$1 tag=$2 ver=${3-} fprefix=$4
 
 		if [ "$tag" = "CLI" ]; then
 			local grab_cl=false
@@ -78,12 +74,16 @@ get_prebuilts() {
 		dir=${TEMP_DIR}/${dir,,}-rv
 		[ -d "$dir" ] || mkdir "$dir"
 
+		local is_gitlab=false
+		_is_gitlab_src "$src" && is_gitlab=true
+
 		local rv_rel name_ver
 		if [ "$is_gitlab" = true ]; then
 			rv_rel="https://gitlab.com/api/v4/projects/$(_gitlab_encode "$src")/releases"
 		else
 			rv_rel="https://api.github.com/repos/${src}/releases"
 		fi
+
 		if [ "$ver" = "dev" ]; then
 			local resp
 			resp=$(gl_or_gh_req "$is_gitlab" "$rv_rel" -) || return 1
@@ -202,28 +202,26 @@ config_update() {
 			if [ "${sources["$PATCHES_SRC/$PATCHES_VER"]}" = 1 ]; then upped+=("$table_name"); fi
 		else
 			sources["$PATCHES_SRC/$PATCHES_VER"]=0
-			# Strip optional "gitlab:" prefix; sets $is_gitlab and clean $src
-			local is_gitlab src
-			_parse_src "$PATCHES_SRC"
-			local PATCHES_SRC_CLEAN="$src"
+			local is_gl=false
+			_is_gitlab_src "$PATCHES_SRC" && is_gl=true
 			local rv_rel
-			if [ "$is_gitlab" = true ]; then
-				rv_rel="https://gitlab.com/api/v4/projects/$(_gitlab_encode "$PATCHES_SRC_CLEAN")/releases"
+			if [ "$is_gl" = true ]; then
+				rv_rel="https://gitlab.com/api/v4/projects/$(_gitlab_encode "$PATCHES_SRC")/releases"
 			else
-				rv_rel="https://api.github.com/repos/${PATCHES_SRC_CLEAN}/releases"
+				rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			fi
 			if [ "$PATCHES_VER" = "dev" ]; then
-				last_patches=$(gl_or_gh_req "$is_gitlab" "$rv_rel" - | jq -e -r '.[0]') || continue
+				last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel" - | jq -e -r '.[0]') || continue
 			elif [ "$PATCHES_VER" = "latest" ]; then
-				if [ "$is_gitlab" = true ]; then
-					last_patches=$(gl_or_gh_req "$is_gitlab" "$rv_rel/permalink/latest" -) || continue
+				if [ "$is_gl" = true ]; then
+					last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/permalink/latest" -) || continue
 				else
-					last_patches=$(gl_or_gh_req "$is_gitlab" "$rv_rel/latest" -) || continue
+					last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/latest" -) || continue
 				fi
 			else
-				last_patches=$(gl_or_gh_req "$is_gitlab" "$rv_rel/tags/${ver}" -) || continue
+				last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/tags/${ver}" -) || continue
 			fi
-			if [ "$is_gitlab" = true ]; then
+			if [ "$is_gl" = true ]; then
 				if ! last_patches=$(jq -e -r '.assets.links[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 					abort "config_update error: '$last_patches'"
 				fi
@@ -233,7 +231,7 @@ config_update() {
 				fi
 			fi
 			if [ "$last_patches" ]; then
-				if ! OP=$(grep "^Patches: ${PATCHES_SRC_CLEAN%%/*}/" build.md | grep -m1 "$last_patches"); then
+				if ! OP=$(grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -m1 "$last_patches"); then
 					sources["$PATCHES_SRC/$PATCHES_VER"]=1
 					prcfg=true
 					upped+=("$table_name")
@@ -282,23 +280,21 @@ gh_dl() {
 	fi
 }
 
-# Strip optional "gitlab:" prefix from a source string.
-# Sets $is_gitlab (true/false) and $src (clean "org/repo") in the caller's scope.
-_parse_src() {
-	local raw=$1
-	if [[ "$raw" == gitlab:* ]]; then
-		is_gitlab=true
-		src="${raw#gitlab:}"
-	else
-		is_gitlab=false
-		src="$raw"
-	fi
+# Returns 0 if the given "org/repo" source is hosted on GitLab
+_is_gitlab_src() {
+	local src=$1 org gl_org
+	org="${src%%/*}"
+	local gitlab_orgs=("ReVanced")
+	for gl_org in "${gitlab_orgs[@]}"; do
+		[ "$gl_org" = "$org" ] && return 0
+	done
+	return 1
 }
 
-# URL-encode "org/repo" -> "org%2Frepo" for GitLab API
-_gitlab_encode() { printf '%s' "${1//\//%2F}"; }
+# URL-encode a "org/repo" path for GitLab API (replaces / with %2F)
+_gitlab_encode() { echo "${1//\//%2F}"; }
 
-# Unified request: uses GitLab or GitHub auth based on $is_gitlab
+# Unified request: uses GitLab or GitHub auth based on is_gitlab flag
 gl_or_gh_req() {
 	local is_gitlab=$1 url=$2 out=$3
 	if [ "$is_gitlab" = true ]; then
@@ -309,7 +305,7 @@ gl_or_gh_req() {
 	fi
 }
 
-# Download a GitLab asset (direct URL, no Accept header needed)
+# Download a file from GitLab (no special Accept header needed)
 gl_dl() {
 	if [ ! -f "$1" ]; then
 		pr "Getting '$1' from '$2'"
@@ -332,7 +328,7 @@ semver_validate() {
 	[ ${#ac} = 0 ]
 }
 get_patch_last_supported_ver() {
-	local list_patches=$1 pkg_name=$2 inc_sel=$3 _exc_sel=$4 _exclusive=$5
+	local list_patches=$1 pkg_name=$2 inc_sel=$3 _exc_sel=$4 _exclusive=$5 # TODO: resolve using all of these
 	local op
 	if [ "$inc_sel" ]; then
 		if ! op=$(awk '{$1=$1}1' <<<"$list_patches"); then
@@ -378,6 +374,7 @@ patches_list() {
 			epr "Could not get patches list $cli_jar: '$op'"
 			return 1
 		fi
+
 	fi
 	echo "$op"
 }
