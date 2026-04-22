@@ -8,6 +8,7 @@ BUILD_DIR="build"
 DL_SRCS=("direct" "archive" "apkmirror" "uptodown")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
+if [ "${GITLAB_TOKEN-}" ]; then GL_HEADER="PRIVATE-TOKEN: ${GITLAB_TOKEN}"; else GL_HEADER=; fi
 NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
 OS=$(uname -o)
 
@@ -73,14 +74,24 @@ get_prebuilts() {
 		dir=${TEMP_DIR}/${dir,,}-rv
 		[ -d "$dir" ] || mkdir "$dir"
 
-		local rv_rel="https://api.github.com/repos/${src}/releases" name_ver
+		local is_gitlab=false
+		_is_gitlab_src "$src" && is_gitlab=true
+
+		local rv_rel name_ver
+		if [ "$is_gitlab" = true ]; then
+			rv_rel="https://gitlab.com/api/v4/projects/$(_gitlab_encode "$src")/releases"
+		else
+			rv_rel="https://api.github.com/repos/${src}/releases"
+		fi
+
 		if [ "$ver" = "dev" ]; then
 			local resp
-			resp=$(gh_req "$rv_rel" -) || return 1
+			resp=$(gl_or_gh_req "$is_gitlab" "$rv_rel" -) || return 1
 			ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
 		fi
 		if [ "$ver" = "latest" ]; then
-			rv_rel+="/latest"
+			if [ "$is_gitlab" = true ]; then rv_rel+="/permalink/latest"
+			else rv_rel+="/latest"; fi
 			name_ver="*"
 		else
 			rv_rel+="/tags/${ver}"
@@ -91,9 +102,13 @@ get_prebuilts() {
 		file=$(find "$dir" -name "*${fprefix}-${name_ver#v}.*" -type f 2>/dev/null)
 		if [ -z "$file" ]; then
 			local resp asset name
-			resp=$(gh_req "$rv_rel" -) || return 1
+			resp=$(gl_or_gh_req "$is_gitlab" "$rv_rel" -) || return 1
 			tag_name=$(jq -r '.tag_name' <<<"$resp") || return 1
-			matches=$(jq -e '.assets | map(select(.name | (endswith("asc") or endswith("json")) | not))' <<<"$resp") || return 1
+			if [ "$is_gitlab" = true ]; then
+				matches=$(jq -e '[.assets.links[] | select(.name | (endswith("asc") or endswith("json")) | not)]' <<<"$resp") || return 1
+			else
+				matches=$(jq -e '.assets | map(select(.name | (endswith("asc") or endswith("json")) | not))' <<<"$resp") || return 1
+			fi
 			if [ "$(jq 'length' <<<"$matches")" -gt 1 ]; then
 				local matches_new
 				matches_new=$(jq -e -r 'map(select(.name | contains("-dev") | not))' <<<"$matches")
@@ -108,10 +123,15 @@ get_prebuilts() {
 				wpr "More than 1 asset was found for this release. Falling back to the first one found..."
 			fi
 			asset=$(jq -r ".[0]" <<<"$matches")
-			url=$(jq -r .url <<<"$asset")
+			if [ "$is_gitlab" = true ]; then
+				url=$(jq -r .direct_asset_url <<<"$asset")
+			else
+				url=$(jq -r .url <<<"$asset")
+			fi
 			name=$(jq -r .name <<<"$asset")
 			file="${dir}/${name}"
-			gh_dl "$file" "$url" >&2 || return 1
+			if [ "$is_gitlab" = true ]; then gl_dl "$file" "$url" >&2 || return 1
+			else gh_dl "$file" "$url" >&2 || return 1; fi
 			echo "$tag: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${cl_dir}/changelog.md"
 		else
 			grab_cl=false
@@ -126,7 +146,13 @@ get_prebuilts() {
 		fi
 
 		if [ "$tag" = "Patches" ]; then
-			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
+			if [ "$grab_cl" = true ]; then
+				if [ "$is_gitlab" = true ]; then
+					echo -e "[Changelog](https://gitlab.com/${src}/-/releases/${tag_name})\n" >>"${cl_dir}/changelog.md"
+				else
+					echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"
+				fi
+			fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
 				extensions_ext=$(unzip -l "${file}" "extensions/shared.*" | grep -o "shared\..*") extensions_ext="${extensions_ext#*.}"
@@ -176,16 +202,33 @@ config_update() {
 			if [ "${sources["$PATCHES_SRC/$PATCHES_VER"]}" = 1 ]; then upped+=("$table_name"); fi
 		else
 			sources["$PATCHES_SRC/$PATCHES_VER"]=0
-			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
-			if [ "$PATCHES_VER" = "dev" ]; then
-				last_patches=$(gh_req "$rv_rel" - | jq -e -r '.[0]') || continue
-			elif [ "$PATCHES_VER" = "latest" ]; then
-				last_patches=$(gh_req "$rv_rel/latest" -) || continue
+			local is_gl=false
+			_is_gitlab_src "$PATCHES_SRC" && is_gl=true
+			local rv_rel
+			if [ "$is_gl" = true ]; then
+				rv_rel="https://gitlab.com/api/v4/projects/$(_gitlab_encode "$PATCHES_SRC")/releases"
 			else
-				last_patches=$(gh_req "$rv_rel/tags/${ver}" -) || continue
+				rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			fi
-			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
-				abort "config_update error: '$last_patches'"
+			if [ "$PATCHES_VER" = "dev" ]; then
+				last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel" - | jq -e -r '.[0]') || continue
+			elif [ "$PATCHES_VER" = "latest" ]; then
+				if [ "$is_gl" = true ]; then
+					last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/permalink/latest" -) || continue
+				else
+					last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/latest" -) || continue
+				fi
+			else
+				last_patches=$(gl_or_gh_req "$is_gl" "$rv_rel/tags/${ver}" -) || continue
+			fi
+			if [ "$is_gl" = true ]; then
+				if ! last_patches=$(jq -e -r '.assets.links[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
+					abort "config_update error: '$last_patches'"
+				fi
+			else
+				if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
+					abort "config_update error: '$last_patches'"
+				fi
 			fi
 			if [ "$last_patches" ]; then
 				if ! OP=$(grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -m1 "$last_patches"); then
@@ -234,6 +277,40 @@ gh_dl() {
 	if [ ! -f "$1" ]; then
 		pr "Getting '$1' from '$2'"
 		_req "$2" "$1" -H "$GH_HEADER" -H "Accept: application/octet-stream"
+	fi
+}
+
+# Returns 0 if the given "org/repo" source is hosted on GitLab
+_is_gitlab_src() {
+	local src=$1 org gl_org
+	org="${src%%/*}"
+	local gitlab_orgs=("ReVanced")
+	for gl_org in "${gitlab_orgs[@]}"; do
+		[ "$gl_org" = "$org" ] && return 0
+	done
+	return 1
+}
+
+# URL-encode a "org/repo" path for GitLab API (replaces / with %2F)
+_gitlab_encode() { echo "${1//\//%2F}"; }
+
+# Unified request: uses GitLab or GitHub auth based on is_gitlab flag
+gl_or_gh_req() {
+	local is_gitlab=$1 url=$2 out=$3
+	if [ "$is_gitlab" = true ]; then
+		if [ "$GL_HEADER" ]; then _req "$url" "$out" -H "$GL_HEADER"
+		else _req "$url" "$out"; fi
+	else
+		gh_req "$url" "$out"
+	fi
+}
+
+# Download a file from GitLab (no special Accept header needed)
+gl_dl() {
+	if [ ! -f "$1" ]; then
+		pr "Getting '$1' from '$2'"
+		if [ "$GL_HEADER" ]; then _req "$2" "$1" -H "$GL_HEADER"
+		else _req "$2" "$1"; fi
 	fi
 }
 
