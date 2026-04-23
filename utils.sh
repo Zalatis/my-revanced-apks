@@ -8,7 +8,6 @@ BUILD_DIR="build"
 DL_SRCS=("direct" "archive" "apkmirror" "uptodown")
 
 if [ "${GITHUB_TOKEN-}" ]; then GH_HEADER="Authorization: token ${GITHUB_TOKEN}"; else GH_HEADER=; fi
-if [ "${GITLAB_TOKEN-}" ]; then GL_HEADER="PRIVATE-TOKEN: ${GITLAB_TOKEN}"; else GL_HEADER=; fi
 NEXT_VER_CODE=${NEXT_VER_CODE:-$(date +'%Y%m%d')}
 OS=$(uname -o)
 
@@ -31,7 +30,7 @@ toml_get() {
 		op="${op%"${op##*[![:space:]]}"}"
 		op=${op//\\\'/$quote_placeholder}
 		op=${op//"''"/$quote_placeholder}
-		op=${op//"'"/'\"'}
+		op=${op//"'"/'"'}
 		op=${op//$quote_placeholder/$'\''}
 		echo "$op"
 	else return 1; fi
@@ -53,154 +52,11 @@ abort() {
 }
 java() { env -i java --enable-native-access=ALL-UNNAMED "$@"; }
 
-# ---------------------------------------------------------------------------
-# Source resolution helpers
-# ---------------------------------------------------------------------------
-
-# resolve_src "gitlab:Owner/repo"  -> sets __SRC_PLATFORM__=gitlab, returns "Owner/repo"
-# resolve_src "github:Owner/repo"  -> sets __SRC_PLATFORM__=github, returns "Owner/repo"
-# resolve_src "Owner/repo"         -> sets __SRC_PLATFORM__=github, returns "Owner/repo"
-# The function echoes "platform:Owner/repo" so callers can use it opaquely.
-resolve_src() {
-	local raw=$1
-	local platform repo
-	if [[ "$raw" == gitlab:* ]]; then
-		platform=gitlab
-		repo=${raw#gitlab:}
-	elif [[ "$raw" == github:* ]]; then
-		platform=github
-		repo=${raw#github:}
-	else
-		platform=github
-		repo=$raw
-	fi
-	echo "${platform}:${repo}"
-}
-
-# Return the base releases API URL for a resolved source token (platform:owner/repo)
-get_rel_api() {
-	local src=$1
-	local platform=${src%%:*}
-	local repo=${src#*:}
-	if [ "$platform" = gitlab ]; then
-		local encoded_repo
-		encoded_repo=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$repo" 2>/dev/null \
-			|| echo "${repo//\//%2F}")
-		echo "https://gitlab.com/api/v4/projects/${encoded_repo}/releases"
-	else
-		echo "https://api.github.com/repos/${repo}/releases"
-	fi
-}
-
-# Return the human-readable releases HTML URL for changelog
-get_rel_html_url() {
-	local src=$1 tag=$2
-	local platform=${src%%:*}
-	local repo=${src#*:}
-	if [ "$platform" = gitlab ]; then
-		echo "https://gitlab.com/${repo}/-/releases/${tag}"
-	else
-		echo "https://github.com/${repo}/releases/tag/${tag}"
-	fi
-}
-
-# ---------------------------------------------------------------------------
-# HTTP helpers
-# ---------------------------------------------------------------------------
-
-_req() {
-	local ip="$1" op="$2"
-	shift 2
-	local dlp="$op"
-	if [ "$op" != - ]; then
-		if [ -f "$op" ]; then return; fi
-		dlp="$(dirname "$op")/tmp.$(basename "$op")"
-		if [ -f "$dlp" ]; then
-			while [ -f "$dlp" ]; do sleep 1; done
-			return
-		fi
-	fi
-	if ! curl -L -c "$TEMP_DIR/cookie.txt" -b "$TEMP_DIR/cookie.txt" --connect-timeout 10 --retry 1 --fail -s -S "$@" "$ip" -o "$dlp"; then
-		epr "Request failed: $ip"
-		return 1
-	fi
-	if [ "$dlp" != - ]; then
-		mv -f "$dlp" "$op"
-	fi
-}
-req() { _req "$1" "$2" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"; }
-gh_req() { _req "$1" "$2" -H "$GH_HEADER"; }
-gh_dl() {
-	if [ ! -f "$1" ]; then
-		pr "Getting '$1' from '$2'"
-		_req "$2" "$1" -H "$GH_HEADER" -H "Accept: application/octet-stream"
-	fi
-}
-gl_req() { _req "$1" "$2" -H "$GL_HEADER"; }
-gl_dl() {
-	if [ ! -f "$1" ]; then
-		pr "Getting '$1' from '$2'"
-		_req "$2" "$1" -H "$GL_HEADER"
-	fi
-}
-
-# Unified request: picks gh_req or gl_req based on resolved source token
-src_req() {
-	local src=$1 url=$2 out=$3
-	local platform=${src%%:*}
-	if [ "$platform" = gitlab ]; then
-		gl_req "$url" "$out"
-	else
-		gh_req "$url" "$out"
-	fi
-}
-
-# Unified download: picks gh_dl or gl_dl based on resolved source token
-src_dl() {
-	local src=$1 file=$2 url=$3
-	local platform=${src%%:*}
-	if [ "$platform" = gitlab ]; then
-		gl_dl "$file" "$url"
-	else
-		gh_dl "$file" "$url"
-	fi
-}
-
-# ---------------------------------------------------------------------------
-# GitLab release JSON normaliser
-# GitLab releases API returns a different shape than GitHub.
-# We normalise it to match the GitHub shape used downstream:
-#   { tag_name, assets: [ { name, url, browser_download_url } ] }
-# ---------------------------------------------------------------------------
-gl_normalise_release() {
-	# Input: single GitLab release JSON object
-	# Output: GitHub-compatible JSON
-	jq '{
-		tag_name: .tag_name,
-		assets: (
-			.assets.links // [] |
-			map({
-				name: .name,
-				url:  .direct_asset_url // .url,
-				browser_download_url: .direct_asset_url // .url
-			})
-		)
-	}'
-}
-
-# ---------------------------------------------------------------------------
-# get_prebuilts  – now source-platform-aware
-# ---------------------------------------------------------------------------
 get_prebuilts() {
 	local cli_src=$1 cli_ver=$2 patches_src=$3 patches_ver=$4
-	# cli_src and patches_src are already resolved tokens (platform:owner/repo)
-	local patches_owner
-	patches_owner=${patches_src#*:}
-	patches_owner=${patches_owner%%/*}
-	pr "Getting prebuilts (${patches_owner})" >&2
-	local cl_dir
-	cl_dir=${patches_src#*:}   # owner/repo
-	cl_dir=${TEMP_DIR}/${cl_dir%%/*}-rv
+	pr "Getting prebuilts (${patches_src%/*})" >&2
+	local cl_dir=${patches_src%/*}
+	cl_dir=${TEMP_DIR}/${cl_dir,,}-rv
 	[ -d "$cl_dir" ] || mkdir "$cl_dir"
 
 	for src_ver in "$cli_src CLI $cli_ver cli" "$patches_src Patches $patches_ver patches"; do
@@ -213,42 +69,21 @@ get_prebuilts() {
 			local grab_cl=true
 		else abort unreachable; fi
 
-		local dir
-		dir=${src#*:}   # strip platform prefix -> owner/repo
-		dir=${TEMP_DIR}/${dir%%/*}-rv
+		local dir=${src%/*}
+		dir=${TEMP_DIR}/${dir,,}-rv
 		[ -d "$dir" ] || mkdir "$dir"
 
-		local rv_rel
-		rv_rel=$(get_rel_api "$src")
-
-		local name_ver
+		local rv_rel="https://api.github.com/repos/${src}/releases" name_ver
 		if [ "$ver" = "dev" ]; then
 			local resp
-			resp=$(src_req "$src" "$rv_rel" -) || return 1
-			# GitLab returns an array; GitHub too
-			local platform=${src%%:*}
-			if [ "$platform" = gitlab ]; then
-				ver=$(echo "$resp" | jq -e -r '.[].tag_name' | get_highest_ver) || return 1
-			else
-				ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
-			fi
+			resp=$(gh_req "$rv_rel" -) || return 1
+			ver=$(jq -e -r '.[] | .tag_name' <<<"$resp" | get_highest_ver) || return 1
 		fi
 		if [ "$ver" = "latest" ]; then
-			# GitLab has no /releases/latest endpoint; grab first from array
-			local platform=${src%%:*}
-			if [ "$platform" = gitlab ]; then
-				:  # handled below after resp fetch
-			else
-				rv_rel+="/latest"
-			fi
+			rv_rel+="/latest"
 			name_ver="*"
 		else
-			local platform=${src%%:*}
-			if [ "$platform" = gitlab ]; then
-				rv_rel+="/${ver}"
-			else
-				rv_rel+="/tags/${ver}"
-			fi
+			rv_rel+="/tags/${ver}"
 			name_ver="$ver"
 		fi
 
@@ -256,19 +91,7 @@ get_prebuilts() {
 		file=$(find "$dir" -name "*${fprefix}-${name_ver#v}.*" -type f 2>/dev/null)
 		if [ -z "$file" ]; then
 			local resp asset name
-			resp=$(src_req "$src" "$rv_rel" -) || return 1
-
-			local platform=${src%%:*}
-			# Normalise GitLab response to GitHub shape
-			if [ "$platform" = gitlab ]; then
-				if [ "$ver" = "latest" ]; then
-					# Array — pick first element and normalise
-					resp=$(echo "$resp" | jq '.[0]' | gl_normalise_release)
-				else
-					resp=$(echo "$resp" | gl_normalise_release)
-				fi
-			fi
-
+			resp=$(gh_req "$rv_rel" -) || return 1
 			tag_name=$(jq -r '.tag_name' <<<"$resp") || return 1
 			matches=$(jq -e '.assets | map(select(.name | (endswith("asc") or endswith("json")) | not))' <<<"$resp") || return 1
 			if [ "$(jq 'length' <<<"$matches")" -gt 1 ]; then
@@ -288,9 +111,8 @@ get_prebuilts() {
 			url=$(jq -r .url <<<"$asset")
 			name=$(jq -r .name <<<"$asset")
 			file="${dir}/${name}"
-			src_dl "$src" "$file" "$url" >&2 || return 1
-			local repo=${src#*:}
-			echo "$tag: ${repo%%/*}/${name}  " >>"${cl_dir}/changelog.md"
+			gh_dl "$file" "$url" >&2 || return 1
+			echo "$tag: $(cut -d/ -f1 <<<"$src")/${name}  " >>"${cl_dir}/changelog.md"
 		else
 			grab_cl=false
 			local for_err=$file
@@ -304,11 +126,7 @@ get_prebuilts() {
 		fi
 
 		if [ "$tag" = "Patches" ]; then
-			if [ "$grab_cl" = true ]; then
-				local cl_url
-				cl_url=$(get_rel_html_url "$src" "$tag_name")
-				echo -e "[Changelog](${cl_url})\n" >>"${cl_dir}/changelog.md"
-			fi
+			if [ "$grab_cl" = true ]; then echo -e "[Changelog](https://github.com/${src}/releases/tag/${tag_name})\n" >>"${cl_dir}/changelog.md"; fi
 			if [ "$REMOVE_RV_INTEGRATIONS_CHECKS" = true ]; then
 				local extensions_ext
 				extensions_ext=$(unzip -l "${file}" "extensions/shared.*" | grep -o "shared\..*") extensions_ext="${extensions_ext#*.}"
@@ -353,44 +171,24 @@ config_update() {
 		enabled=$(toml_get "$t" enabled) || enabled=true
 		if [ "$enabled" = "false" ]; then continue; fi
 		PATCHES_SRC=$(toml_get "$t" patches-source) || PATCHES_SRC=$DEF_PATCHES_SRC
-		PATCHES_SRC=$(resolve_src "$PATCHES_SRC")
 		PATCHES_VER=$(toml_get "$t" patches-version) || PATCHES_VER=$DEF_PATCHES_VER
 		if [[ -v sources["$PATCHES_SRC/$PATCHES_VER"] ]]; then
 			if [ "${sources["$PATCHES_SRC/$PATCHES_VER"]}" = 1 ]; then upped+=("$table_name"); fi
 		else
 			sources["$PATCHES_SRC/$PATCHES_VER"]=0
-			local rv_rel
-			rv_rel=$(get_rel_api "$PATCHES_SRC")
-			local last_patches
+			local rv_rel="https://api.github.com/repos/${PATCHES_SRC}/releases"
 			if [ "$PATCHES_VER" = "dev" ]; then
-				local platform=${PATCHES_SRC%%:*}
-				if [ "$platform" = gitlab ]; then
-					last_patches=$(src_req "$PATCHES_SRC" "$rv_rel" - | jq -e -r '.[0]' | gl_normalise_release) || continue
-				else
-					last_patches=$(src_req "$PATCHES_SRC" "$rv_rel" - | jq -e -r '.[0]') || continue
-				fi
+				last_patches=$(gh_req "$rv_rel" - | jq -e -r '.[0]') || continue
 			elif [ "$PATCHES_VER" = "latest" ]; then
-				local platform=${PATCHES_SRC%%:*}
-				if [ "$platform" = gitlab ]; then
-					last_patches=$(src_req "$PATCHES_SRC" "$rv_rel" - | jq -e -r '.[0]' | gl_normalise_release) || continue
-				else
-					last_patches=$(src_req "$PATCHES_SRC" "${rv_rel}/latest" -) || continue
-				fi
+				last_patches=$(gh_req "$rv_rel/latest" -) || continue
 			else
-				local platform=${PATCHES_SRC%%:*}
-				if [ "$platform" = gitlab ]; then
-					last_patches=$(src_req "$PATCHES_SRC" "${rv_rel}/${PATCHES_VER}" - | gl_normalise_release) || continue
-				else
-					last_patches=$(src_req "$PATCHES_SRC" "${rv_rel}/tags/${PATCHES_VER}" -) || continue
-				fi
+				last_patches=$(gh_req "$rv_rel/tags/${ver}" -) || continue
 			fi
 			if ! last_patches=$(jq -e -r '.assets[] | select(.name | (endswith("asc") or endswith("json")) | not) | .name' <<<"$last_patches"); then
 				abort "config_update error: '$last_patches'"
 			fi
-			local patches_owner=${PATCHES_SRC#*:}
-			patches_owner=${patches_owner%%/*}
 			if [ "$last_patches" ]; then
-				if ! OP=$(grep "^Patches: ${patches_owner}/" build.md | grep -m1 "$last_patches"); then
+				if ! OP=$(grep "^Patches: ${PATCHES_SRC%%/*}/" build.md | grep -m1 "$last_patches"); then
 					sources["$PATCHES_SRC/$PATCHES_VER"]=1
 					prcfg=true
 					upped+=("$table_name")
@@ -410,6 +208,35 @@ config_update() {
 	fi
 }
 
+_req() {
+	local ip="$1" op="$2"
+	shift 2
+	local dlp="$op"
+	if [ "$op" != - ]; then
+		if [ -f "$op" ]; then return; fi
+		dlp="$(dirname "$op")/tmp.$(basename "$op")"
+		if [ -f "$dlp" ]; then
+			while [ -f "$dlp" ]; do sleep 1; done
+			return
+		fi
+	fi
+	if ! curl -L -c "$TEMP_DIR/cookie.txt" -b "$TEMP_DIR/cookie.txt" --connect-timeout 10 --retry 1 --fail -s -S "$@" "$ip" -o "$dlp"; then
+		epr "Request failed: $ip"
+		return 1
+	fi
+	if [ "$dlp" != - ]; then
+		mv -f "$dlp" "$op"
+	fi
+}
+req() { _req "$1" "$2" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"; }
+gh_req() { _req "$1" "$2" -H "$GH_HEADER"; }
+gh_dl() {
+	if [ ! -f "$1" ]; then
+		pr "Getting '$1' from '$2'"
+		_req "$2" "$1" -H "$GH_HEADER" -H "Accept: application/octet-stream"
+	fi
+}
+
 log() { echo -e "$1  " >>"build.md"; }
 get_highest_ver() {
 	local vers m
@@ -424,7 +251,7 @@ semver_validate() {
 	[ ${#ac} = 0 ]
 }
 get_patch_last_supported_ver() {
-	local list_patches=$1 pkg_name=$2 inc_sel=$3 _exc_sel=$4 _exclusive=$5
+	local list_patches=$1 pkg_name=$2 inc_sel=$3 _exc_sel=$4 _exclusive=$5 # TODO: resolve using all of these
 	local op
 	if [ "$inc_sel" ]; then
 		if ! op=$(awk '{$1=$1}1' <<<"$list_patches"); then
@@ -490,6 +317,7 @@ merge_splits() {
 		epr "APKEditor error: $OP"
 		return 1
 	fi
+	# sign the merged stock apk
 	if ! OP=$(java -jar "$APKSIGNER" sign --ks ks-p12.keystore --ks-pass pass:123456789 --key-pass pass:123456789 --ks-key-alias jhc \
 		--out "${output}" "${output}-unsigned"); then
 		epr "apksigner error: $OP"
@@ -530,6 +358,7 @@ apkmirror_search() {
 		fi
 	done
 	if [ "$n" -eq 2 ] && [ "$dlurl" ]; then
+		# only one apk exists, return it
 		echo "$dlurl"
 		return 0
 	fi
