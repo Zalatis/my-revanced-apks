@@ -173,14 +173,16 @@ src_dl() {
 #   { tag_name, assets: [ { name, url, browser_download_url } ] }
 # ---------------------------------------------------------------------------
 gl_normalise_release() {
+	# Input: single GitLab release JSON object
+	# Output: GitHub-compatible JSON
 	jq '{
 		tag_name: .tag_name,
 		assets: (
 			.assets.links // [] |
 			map({
 				name: .name,
-				url:  (if .direct_asset_url != null then .direct_asset_url else .url end),
-				browser_download_url: (if .direct_asset_url != null then .direct_asset_url else .url end)
+				url:  .direct_asset_url // .url,
+				browser_download_url: .direct_asset_url // .url
 			})
 		)
 	}'
