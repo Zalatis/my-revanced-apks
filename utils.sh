@@ -83,9 +83,8 @@ get_rel_api() {
 	local platform=${src%%:*}
 	local repo=${src#*:}
 	if [ "$platform" = gitlab ]; then
-		local encoded_repo
-		encoded_repo=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$repo" 2>/dev/null \
-			|| echo "${repo//\//%2F}")
+		# URL-encode the namespace/project (replace / with %2F)
+		local encoded_repo="${repo//\//%2F}"
 		echo "https://gitlab.com/api/v4/projects/${encoded_repo}/releases"
 	else
 		echo "https://api.github.com/repos/${repo}/releases"
@@ -173,14 +172,17 @@ src_dl() {
 #   { tag_name, assets: [ { name, url, browser_download_url } ] }
 # ---------------------------------------------------------------------------
 gl_normalise_release() {
-	jq '{
+	# GitLab releases have assets under .assets.links (uploaded files)
+	# and .assets.sources (auto-generated archives). We prefer links.
+	jq 'def pick_url: if .direct_asset_url != null then .direct_asset_url else .url end;
+	{
 		tag_name: .tag_name,
 		assets: (
-			.assets.links // [] |
+			(if .assets.links != null then .assets.links else [] end) |
 			map({
 				name: .name,
-				url:  (if .direct_asset_url != null then .direct_asset_url else .url end),
-				browser_download_url: (if .direct_asset_url != null then .direct_asset_url else .url end)
+				url:  (pick_url),
+				browser_download_url: (pick_url)
 			})
 		)
 	}'
@@ -254,17 +256,20 @@ get_prebuilts() {
 		file=$(find "$dir" -name "*${fprefix}-${name_ver#v}.*" -type f 2>/dev/null)
 		if [ -z "$file" ]; then
 			local resp asset name
-			resp=$(src_req "$src" "$rv_rel" -) || return 1
-
 			local platform=${src%%:*}
-			# Normalise GitLab response to GitHub shape
+
 			if [ "$platform" = gitlab ]; then
 				if [ "$ver" = "latest" ]; then
-					# Array — pick first element and normalise
+					# GitLab has no /releases/latest — fetch array, take first
+					resp=$(gl_req "$rv_rel" -) || return 1
 					resp=$(echo "$resp" | jq '.[0]' | gl_normalise_release)
 				else
+					# Single release by tag
+					resp=$(gl_req "${rv_rel}/${ver}" -) || return 1
 					resp=$(echo "$resp" | gl_normalise_release)
 				fi
+			else
+				resp=$(gh_req "$rv_rel" -) || return 1
 			fi
 
 			tag_name=$(jq -r '.tag_name' <<<"$resp") || return 1
